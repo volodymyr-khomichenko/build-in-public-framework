@@ -660,10 +660,16 @@ export function evaluate(state: FrameworkState): Reading {
     signText === "Not answered" ||
     ampLabels.some((w) => w === "Not answered")
   ) {
-    outcome = {
-      text: "Unclear — answer the remaining questions.",
-      line: "Unanswered questions count as unknown.",
-    };
+    const everyQuestionAnswered = QIDS.every((id) => a[id] != null);
+    outcome = everyQuestionAnswered
+      ? {
+          text: "Unclear — the gates are still unchecked.",
+          line: "A gate is a yes-or-no condition: pass it, and the multiplier can work for you; fail it, and no amount of shine will save you.",
+        }
+      : {
+          text: "Unclear — answer the remaining questions.",
+          line: "Unanswered questions count as unknown.",
+        };
   } else {
     let line = "In the winners, all three parts are positive and large.";
     if (coefText.startsWith("Low") || cheap) {
@@ -702,7 +708,7 @@ export function evaluate(state: FrameworkState): Reading {
   else if (outcome.text.startsWith("Unclear")) archetype = "Your reading is still forming";
   else archetype = "Not multiplying yet";
 
-  const fix = pickFix(state, pillars, truth, cheap, signText);
+  const fix = pickFix(state, pillars, truth, subGate, cheap, signText, outcome.text);
   const dial = pickDial(state);
 
   const flavors = state.chips.trust
@@ -747,8 +753,10 @@ function pickFix(
   state: FrameworkState,
   pillars: PillarView[],
   truth: GateWord,
+  subGate: GateWord,
   cheap: boolean,
   signText: string,
+  outcomeText: string,
 ): FixView {
   const hit = SYMPTOM_PRIORITY.find((id) => state.symptoms[id] === "me");
   if (hit) {
@@ -771,11 +779,29 @@ function pickFix(
       text: cap(weak.line) + " " + VAGUE_WORK,
     };
   }
+  if (truth === "Failed") {
+    return {
+      heading: "Fix this first",
+      badge: "STOP",
+      stop: true,
+      title: "Truth gate.",
+      text: "Never show a number in public that you aren't prepared to stand behind when people start checking it.",
+    };
+  }
+  if (subGate !== "Passed") {
+    return {
+      heading: "Fix this first",
+      badge: subGate === "Failed" ? "STOP" : "Substance",
+      stop: subGate === "Failed",
+      title: "Substance gate.",
+      text: "Stop asking whether people are talking about you and ask whether anyone is buying. If the answer is no, fix that before publishing anything else.",
+    };
+  }
   if (truth !== "Passed") {
     return {
       heading: "Fix this first",
-      badge: truth === "Failed" ? "STOP" : "Truth",
-      stop: truth === "Failed",
+      badge: "Truth",
+      stop: false,
       title: "Truth gate.",
       text: "Never show a number in public that you aren't prepared to stand behind when people start checking it.",
     };
@@ -835,12 +861,21 @@ function pickFix(
     },
   ];
   if (amps.every((amp) => amp.word === "Present")) {
+    if (outcomeText.startsWith("Positive")) {
+      return {
+        heading: "Fix this first",
+        badge: "Order",
+        stop: false,
+        title: "Keep the order.",
+        text: "Base before publicity, truth before reach, patience before scale, and a persona you can hold for a decade.",
+      };
+    }
     return {
       heading: "Fix this first",
-      badge: "Order",
+      badge: "Audit",
       stop: false,
-      title: "Keep the order.",
-      text: "Base before publicity, truth before reach, patience before scale, and a persona you can hold for a decade.",
+      title: "Finish the audit.",
+      text: "Unanswered questions count as unknown — the reading firms up as you answer the rest.",
     };
   }
   const rank = (w: string) =>

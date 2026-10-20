@@ -6,6 +6,7 @@ import {
   SIDS,
   SYMPTOMS,
   TOTAL,
+  answeredCount,
   emptyState,
   evaluate,
   type Ans,
@@ -314,5 +315,83 @@ describe("Build in Public Framework ratings", () => {
     );
     assert.match(positive.outcome.text, /^Positive/);
     assert.equal(positive.archetype, "Multiplying in the right direction");
+  });
+
+  it("v0.4 substance gate, audit order, and unclear wording", () => {
+    const gateLine =
+      "A gate is a yes-or-no condition: pass it, and the multiplier can work for you; fail it, and no amount of shine will save you.";
+
+    const substanceNo = allClear((st) => {
+      st.chips.face = "public";
+    });
+    setAns(substanceNo, "r3q3", "N");
+    const no = evaluate(substanceNo);
+    assert.equal(no.archetype, "At risk of: Empty publicity");
+    assert.equal(no.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(no.fix.heading, "Fix this first");
+    assert.equal(no.fix.title, "Substance gate.");
+    assert.equal(no.fix.badge, "STOP");
+    assert.equal(no.fix.stop, true);
+    assert.equal(
+      no.fix.text,
+      "Stop asking whether people are talking about you and ask whether anyone is buying. If the answer is no, fix that before publishing anything else.",
+    );
+
+    const substanceVague = allClear();
+    setAns(substanceVague, "r3q3", "V");
+    const vagueGate = evaluate(substanceVague);
+    assert.equal(vagueGate.fix.heading, "Fix this first");
+    assert.equal(vagueGate.fix.title, "Substance gate.");
+    assert.equal(vagueGate.fix.badge, "Substance");
+    assert.equal(vagueGate.fix.stop, false);
+    assert.equal(vagueGate.outcome.text, "Unclear — the gates are still unchecked.");
+    assert.equal(vagueGate.outcome.line, gateLine);
+    assert.equal(vagueGate.archetype, "Your reading is still forming");
+
+    const truthVague = allClear();
+    setAns(truthVague, "r3q1", "V");
+    for (const id of SIDS) truthVague.symptoms[id] = "not";
+    assert.equal(answeredCount(truthVague), TOTAL);
+    const truth = evaluate(truthVague);
+    assert.equal(truth.outcome.text, "Unclear — the gates are still unchecked.");
+    assert.equal(truth.outcome.line, gateLine);
+    assert.equal(truth.fix.title, "Truth gate.");
+    assert.equal(truth.fix.badge, "Truth");
+    assert.equal(truth.fix.stop, false);
+    assert.equal(truth.archetype, "Your reading is still forming");
+
+    const only = emptyState();
+    setAns(only, "r1q1", "C");
+    assert.equal(evaluate(only).outcome.text, "Unclear — answer the remaining questions.");
+    assert.equal(evaluate(only).outcome.line, "Unanswered questions count as unknown.");
+
+    const signOpen = allClear();
+    setAns(signOpen, "r5q2", null);
+    const audit = evaluate(signOpen);
+    assert.equal(audit.outcome.text, "Unclear — answer the remaining questions.");
+    assert.equal(audit.fix.heading, "Fix this first");
+    assert.equal(audit.fix.badge, "Audit");
+    assert.equal(audit.fix.title, "Finish the audit.");
+    assert.equal(
+      audit.fix.text,
+      "Unanswered questions count as unknown — the reading firms up as you answer the rest.",
+    );
+    assert.notEqual(audit.fix.title, "Keep the order.");
+
+    const positive = evaluate(
+      allClear((st) => {
+        st.chips.face = "public";
+      }),
+    );
+    assert.match(positive.outcome.text, /^Positive/);
+    assert.equal(positive.fix.title, "Keep the order.");
+    assert.equal(positive.archetype, "Multiplying in the right direction");
+
+    for (const sample of [substanceNo, substanceVague, truthVague, only, signOpen, allClear()]) {
+      const reading = evaluate(sample);
+      if (reading.fix.title === "Keep the order.") {
+        assert.match(reading.outcome.text, /^Positive/);
+      }
+    }
   });
 });
