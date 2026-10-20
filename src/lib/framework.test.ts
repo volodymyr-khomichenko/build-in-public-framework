@@ -254,4 +254,65 @@ describe("Build in Public Framework ratings", () => {
     assert.match(r.fix.text, /^Openness woven into the product/);
     assert.doesNotMatch(r.fix.title, /Build this next/);
   });
+
+  it("v0.3 titles follow the outcome when no at-risk rule matches", () => {
+    const monetizationMissing = allClear();
+    setAns(monetizationMissing, "r1q4", "N");
+    const missing = evaluate(monetizationMissing);
+    assert.equal(missing.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(missing.archetype, "Not multiplying yet");
+
+    const monetizationVague = allClear();
+    setAns(monetizationVague, "r1q4", "V");
+    const vague = evaluate(monetizationVague);
+    assert.match(vague.outcome.text, /^Not yet/);
+    assert.equal(vague.archetype, "Not multiplying yet");
+
+    const substanceVague = allClear();
+    setAns(substanceVague, "r1q1", "V");
+    assert.equal(evaluate(substanceVague).archetype, "At risk of: Empty publicity");
+
+    const substanceMissing = allClear();
+    setAns(substanceMissing, "r1q1", "N");
+    assert.equal(evaluate(substanceMissing).archetype, "At risk of: Empty publicity");
+
+    const onlySubstance = emptyState();
+    setAns(onlySubstance, "r1q1", "C");
+    const partial = evaluate(onlySubstance);
+    assert.match(partial.outcome.text, /^Unclear/);
+    assert.equal(partial.archetype, "Your reading is still forming");
+
+    const signVague = allClear();
+    setAns(signVague, "r5q2", "V");
+    assert.equal(signVague.chips.face, null);
+    const flipped = evaluate(signVague);
+    assert.equal(flipped.sign.text, "At risk");
+    assert.equal(flipped.outcome.text, "At risk — the sign could still flip.");
+    assert.equal(flipped.archetype, "At risk of: The negative sign");
+
+    const samples = [
+      allClear((st) => {
+        st.chips.face = "public";
+      }),
+      monetizationMissing,
+      monetizationVague,
+      substanceVague,
+      onlySubstance,
+      signVague,
+      emptyState(),
+    ];
+    for (const sample of samples) {
+      const reading = evaluate(sample);
+      if (reading.archetype === "Multiplying in the right direction") {
+        assert.match(reading.outcome.text, /^Positive/);
+      }
+    }
+    const positive = evaluate(
+      allClear((st) => {
+        st.chips.face = "public";
+      }),
+    );
+    assert.match(positive.outcome.text, /^Positive/);
+    assert.equal(positive.archetype, "Multiplying in the right direction");
+  });
 });

@@ -678,22 +678,29 @@ export function evaluate(state: FrameworkState): Reading {
     broken: s.broken,
   }));
 
-  let archetype = "Multiplying in the right direction";
+  let archetype: string;
   const priorityHit = SYMPTOM_PRIORITY.find((id) => state.symptoms[id] === "me");
   if (priorityHit) archetype = symptomById(priorityHit).name;
   else if (truth === "Failed") archetype = "At risk of: The public lie";
-  else if (pillars[0].state === "missing" || subGate === "Failed")
+  else if (
+    pillars[0].state === "missing" ||
+    pillars[0].state === "vague" ||
+    subGate === "Failed"
+  )
     archetype = "At risk of: Empty publicity";
   else if (pillars[1].state === "missing" || pillars[1].state === "vague")
     archetype = "At risk of: The Love Trap";
   else if (pillars[3].state === "missing" || pillars[3].state === "vague")
     archetype = "At risk of: Honest, and going nowhere";
-  else if (signText === "At risk" && state.chips.face === "public")
-    archetype = "At risk of: The negative sign";
+  else if (signText === "At risk") archetype = "At risk of: The negative sign";
   else if (state.chips.dial === "map" && (a.r6q1 !== "C" || a.r6q2 !== "C"))
     archetype = "At risk of: Eroded moat";
   else if (a.r7q1 === "N" || a.r7q2 === "N" || a.r7q3 === "N")
     archetype = "At risk of: The founder runs out";
+  else if (outcome.text.startsWith("Positive"))
+    archetype = "Multiplying in the right direction";
+  else if (outcome.text.startsWith("Unclear")) archetype = "Your reading is still forming";
+  else archetype = "Not multiplying yet";
 
   const fix = pickFix(state, pillars, truth, cheap, signText);
   const dial = pickDial(state);
