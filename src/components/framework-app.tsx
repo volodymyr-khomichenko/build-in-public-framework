@@ -26,7 +26,7 @@ import {
   type SymptomAns,
 } from "@/lib/framework";
 
-const BOOK = "https://khomichenko.com/build-in-public";
+const BOOK = "https://khomichenko.com/build-in-public/";
 const AUDIO = "https://youtu.be/VFHsPbn17bM";
 
 const ANSWER_OPTIONS: { value: Ans; label: string; cls: string }[] = [
@@ -337,6 +337,19 @@ export function FrameworkApp() {
                     className={`pchip ${pillarTone(p.state)}`}
                     onClick={() => go(0)}
                   >
+                    {p.state === "inplace" ? (
+                      <span className="pmark" aria-hidden="true">
+                        ✓
+                      </span>
+                    ) : p.state === "vague" ? (
+                      <span className="pmark" aria-hidden="true">
+                        ~
+                      </span>
+                    ) : p.state === "missing" ? (
+                      <span className="pmark" aria-hidden="true">
+                        ×
+                      </span>
+                    ) : null}
                     {p.name === "A market that pays" ? "Market that pays" : p.name}
                     <span className="sr">: {p.word}</span>
                   </button>
@@ -470,7 +483,7 @@ export function FrameworkApp() {
 
         <footer className="foot">
           <div>
-            Build in Public Framework · <span className="tag">v0.1</span>
+            Build in Public Framework · <span className="tag">v0.2</span>
             {" · "}
             <button type="button" className="linkish" onClick={startOver}>
               {armClear ? "Clear answers?" : "Start over"}
@@ -670,10 +683,10 @@ function ResultPanel({
   const pillarLine = reading.pillars.map((p) => `${p.name}: ${p.word}`).join("; ");
   return (
     <div className="card">
-      <div className="final-arche" tabIndex={-1} ref={headingRef}>
-        Your reading · Base × Coefficient × Sign
-      </div>
-      <h2 className="final-title">{reading.archetype}</h2>
+      <div className="final-arche">Your reading · Base × Coefficient × Sign</div>
+      <h2 className="final-title" tabIndex={-1} ref={headingRef}>
+        {reading.archetype}
+      </h2>
       <p className="final-line">
         <b>{reading.outcome.text}</b> {reading.outcome.line}
       </p>
@@ -721,7 +734,7 @@ function ResultPanel({
           </p>
           <p className="mm">
             <b>Sign.</b> {reading.sign.text}
-            {reading.sign.note ? ` ${reading.sign.note}` : ""}
+            {reading.sign.note ? `. ${reading.sign.note}` : ""}
           </p>
           <p className="mm">
             <b>Outcome.</b> {reading.outcome.text} {reading.outcome.line}

@@ -13,6 +13,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const Route = createFileRoute("/api/subscribe")({
   server: {
     handlers: {
+      GET: async () => Response.json({ error: "Method not allowed." }, { status: 405 }),
       POST: async ({ request }) => {
         let body: Record<string, unknown>;
         try {
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/api/subscribe")({
         const key = process.env.MAILERLITE_API_KEY;
         const group = process.env.MAILERLITE_GROUP_ID;
         if (!key || !group) {
-          return Response.json({ error: "MailerLite is not configured." }, { status: 503 });
+          return Response.json({ error: "MailerLite is not configured." }, { status: 400 });
         }
         const fields = {
           archetype: String(body.archetype ?? ""),
@@ -49,7 +50,7 @@ export const Route = createFileRoute("/api/subscribe")({
           body: JSON.stringify({ email, groups: [group], fields }),
         });
         if (!upstream.ok) {
-          return Response.json({ error: "MailerLite rejected the request." }, { status: 502 });
+          return Response.json({ error: "MailerLite rejected the request." }, { status: 400 });
         }
         return Response.json({ ok: true });
       },

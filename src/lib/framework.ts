@@ -495,6 +495,10 @@ export interface Reading {
 
 export type Tone = "pos" | "muted" | "bad";
 
+function cap(text: string): string {
+  return text.length ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+}
+
 function baseTone(kind: Reading["base"]["kind"]): Tone {
   if (kind === "complete") return "pos";
   if (kind === "zero") return "bad";
@@ -560,6 +564,8 @@ export function evaluate(state: FrameworkState): Reading {
       line: PILLAR_LINES.distribution,
     },
   ];
+  if (state.symptoms.s4 === "me" && pillars[1].state === "inplace") pillars[1].state = "vague";
+  if (state.symptoms.s3 === "me" && pillars[3].state === "inplace") pillars[3].state = "vague";
   for (const p of pillars) p.word = pillarWord(p.state);
 
   const missing = pillars.filter((p) => p.state === "missing");
@@ -639,6 +645,11 @@ export function evaluate(state: FrameworkState): Reading {
     outcome = {
       text: "Not yet — that is your next month's work, not transparency.",
       line: VAGUE_WORK,
+    };
+  } else if (signText === "At risk") {
+    outcome = {
+      text: "At risk — the sign could still flip.",
+      line: "When you are the channel, your conduct decides whether the whole equation comes out positive or negative.",
     };
   } else if (
     base.kind === "incomplete" ||
@@ -750,7 +761,7 @@ function pickFix(
       badge: weak.short,
       stop: false,
       title: weak.name + ".",
-      text: VAGUE_WORK + " " + weak.line,
+      text: cap(weak.line) + " " + VAGUE_WORK,
     };
   }
   if (truth !== "Passed") {
@@ -812,13 +823,19 @@ function pickFix(
     {
       name: "Costly honesty",
       short: "Honesty",
-      word: state.answers.r4q1 && state.answers.r4q2 && state.answers.r4q3 &&
-        [state.answers.r4q1, state.answers.r4q2, state.answers.r4q3].every((x) => x !== "C")
-        ? "The cheap kind"
-        : ampWord(groupOf([state.answers.r4q1, state.answers.r4q2, state.answers.r4q3])),
+      word: ampWord(groupOf([state.answers.r4q1, state.answers.r4q2, state.answers.r4q3])),
       line: AMP_LINES.costly,
     },
   ];
+  if (amps.every((amp) => amp.word === "Present")) {
+    return {
+      heading: "Fix this first",
+      badge: "Order",
+      stop: false,
+      title: "Keep the order.",
+      text: "Base before publicity, truth before reach, patience before scale, and a persona you can hold for a decade.",
+    };
+  }
   const rank = (w: string) =>
     w === "Absent" || w === "The cheap kind" ? 0 : w === "Forming" ? 1 : w === "Not answered" ? 2 : 3;
   let best = amps[0];
@@ -827,8 +844,8 @@ function pickFix(
     heading: "Build this next",
     badge: best.short,
     stop: false,
-    title: "Build this next: " + best.name + ".",
-    text: best.line,
+    title: best.name + ".",
+    text: cap(best.line),
   };
 }
 

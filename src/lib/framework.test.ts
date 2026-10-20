@@ -93,6 +93,10 @@ describe("Build in Public Framework ratings", () => {
     assert.match(r.outcome.text, /^Positive/);
     assert.match(r.outcome.line, /all three parts are positive and large/);
     assert.equal(r.archetype, "Multiplying in the right direction");
+    assert.equal(r.fix.heading, "Fix this first");
+    assert.equal(r.fix.badge, "Order");
+    assert.equal(r.fix.title, "Keep the order.");
+    assert.match(r.fix.text, /^Base before publicity/);
     assert.equal(r.dial.title, "Open wide.");
     assert.equal(r.truth, "Passed");
     assert.equal(r.substanceGate, "Passed");
@@ -183,5 +187,71 @@ describe("Build in Public Framework ratings", () => {
     assert.doesNotMatch(blob, /\b\d+(\.\d+)?x\b/i);
     assert.doesNotMatch(blob, /%/);
     assert.doesNotMatch(blob, /\$/);
+  });
+
+  it("a vague sign with a public face is at risk, never positive", () => {
+    const s = allClear((st) => {
+      st.chips.face = "public";
+    });
+    setAns(s, "r5q2", "V");
+    const r = evaluate(s);
+    assert.equal(r.sign.text, "At risk");
+    assert.equal(r.outcome.text, "At risk — the sign could still flip.");
+    assert.match(r.outcome.line, /conduct decides/);
+    assert.equal(r.archetype, "At risk of: The negative sign");
+    assert.equal(r.fix.heading, "Fix this first");
+    assert.equal(r.fix.title, "The negative sign");
+    assert.notEqual(r.outcome.text, "Positive — multiplying what you've built.");
+  });
+
+  it("symptom 3 weakens an in-place distribution pillar", () => {
+    const s = allClear();
+    s.symptoms.s3 = "me";
+    const r = evaluate(s);
+    assert.equal(r.pillars[3].word, "Vague");
+    assert.equal(r.base.text, "Unproven — vague on: Distribution");
+    assert.equal(r.outcome.text, "Not yet — that is your next month's work, not transparency.");
+    assert.equal(r.archetype, "Honest, and going nowhere");
+    assert.equal(r.fix.badge, "STOP");
+  });
+
+  it("symptom 4 weakens an in-place paying market", () => {
+    const s = allClear();
+    s.symptoms.s4 = "me";
+    const r = evaluate(s);
+    assert.equal(r.pillars[1].word, "Vague");
+    assert.equal(r.base.text, "Unproven — vague on: A market that pays");
+    assert.equal(r.outcome.text, "Not yet — that is your next month's work, not transparency.");
+    assert.equal(r.archetype, "The Love Trap");
+  });
+
+  it("a missing pillar stays missing when the matching symptom is marked", () => {
+    const s = allClear();
+    setAns(s, "r1q5", "N");
+    s.symptoms.s3 = "me";
+    const r = evaluate(s);
+    assert.equal(r.pillars[3].word, "Missing");
+    assert.match(r.base.text, /^Zero — missing: Distribution$/);
+  });
+
+  it("a vague pillar recommendation capitalises the pillar line", () => {
+    const s = allClear();
+    setAns(s, "r1q1", "V");
+    const r = evaluate(s);
+    assert.equal(r.fix.title, "Substance.");
+    assert.equal(
+      r.fix.text,
+      "Real value that solves a real problem. Missing it, the multiplier inflates emptiness. If any of these answers is vague, that is your next month's work — not transparency.",
+    );
+  });
+
+  it("a forming amplifier is named once, with a capitalised line", () => {
+    const s = allClear();
+    setAns(s, "r2q4", "V");
+    const r = evaluate(s);
+    assert.equal(r.fix.heading, "Build this next");
+    assert.equal(r.fix.title, "Integration.");
+    assert.match(r.fix.text, /^Openness woven into the product/);
+    assert.doesNotMatch(r.fix.title, /Build this next/);
   });
 });

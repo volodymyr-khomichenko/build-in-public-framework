@@ -334,6 +334,10 @@ body {
   color: var(--muted);
   background: #fff;
 }
+.pmark {
+  margin-right: 3px;
+  font-weight: 700;
+}
 
 .progress-track {
   height: 7px;
@@ -501,6 +505,7 @@ body {
 
 .q {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -514,8 +519,8 @@ body {
   font-size: 16.5px;
   line-height: 1.35;
   font-weight: 450;
-  flex: 1 1 240px;
-  min-width: 0;
+  flex: 1 1 300px;
+  min-width: min(100%, 300px);
 }
 .q-label {
   font-family: var(--mono);
@@ -572,7 +577,7 @@ body {
   gap: 8px;
   flex-shrink: 0;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 .toggle button {
   font-weight: 600;
@@ -926,12 +931,19 @@ body {
   font-weight: 600;
 }
 
+@media (min-width: 841px) {
+  .tabs {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
 @media (max-width: 840px) {
   .stage {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .left {
     position: static;
+    min-width: 0;
   }
 }
 @media (max-width: 520px) {
@@ -971,6 +983,8 @@ body {
     padding: 12px 0;
   }
   .q-text {
+    flex: 0 0 auto;
+    min-width: 0;
     font-size: 15.5px;
   }
   .toggle {
@@ -1011,6 +1025,7 @@ body {
     margin-right: -14px;
     padding-left: 14px;
     padding-right: 14px;
+    max-width: calc(100% + 28px);
   }
   .tile-word {
     font-size: 13px;

@@ -17,6 +17,25 @@ export const Route = createRootRoute({
           'The framework from the book "Build in Public" by Volodymyr Khomichenko. Answer the book\'s Transparency Audit and see your Base, Coefficient and Sign — in words, the way the book reads every founder.',
       },
       { name: "theme-color", content: "#eef1f5" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://build-in-public-framework.khomichenko.com/" },
+      {
+        property: "og:image",
+        content: "https://build-in-public-framework.vercel.app/og.png",
+      },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Build in Public Framework — Base × Coefficient × Sign",
+      },
+      { name: "twitter:title", content: "Build in Public Framework" },
+      {
+        name: "twitter:description",
+        content:
+          "What is your openness actually multiplying? The framework from the book by Volodymyr Khomichenko.",
+      },
+      { name: "twitter:image", content: "https://build-in-public-framework.vercel.app/og.png" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
