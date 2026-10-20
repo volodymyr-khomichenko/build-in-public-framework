@@ -483,7 +483,7 @@ export function FrameworkApp() {
 
         <footer className="foot">
           <div>
-            Build in Public Framework · <span className="tag">v0.4</span>
+            Build in Public Framework · <span className="tag">v0.5</span>
             {" · "}
             <button type="button" className="linkish" onClick={startOver}>
               {armClear ? "Clear answers?" : "Start over"}

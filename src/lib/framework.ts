@@ -639,7 +639,10 @@ export function evaluate(state: FrameworkState): Reading {
   } else if (base.kind === "zero" || subGate === "Failed") {
     outcome = {
       text: "Zero — a loud, public, well-documented zero.",
-      line: "If any pillar is zero, the outcome is zero.",
+      line:
+        base.kind === "zero"
+          ? "If any pillar is zero, the outcome is zero."
+          : "A gate is a yes-or-no condition: pass it, and the multiplier can work for you; fail it, and no amount of shine will save you.",
     };
   } else if (base.kind === "unproven") {
     outcome = {

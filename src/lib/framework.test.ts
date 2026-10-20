@@ -394,4 +394,41 @@ describe("Build in Public Framework ratings", () => {
       }
     }
   });
+
+  it("v0.5 zero line matches a missing pillar or a failed substance gate", () => {
+    const gateLine =
+      "A gate is a yes-or-no condition: pass it, and the multiplier can work for you; fail it, and no amount of shine will save you.";
+    const pillarLine = "If any pillar is zero, the outcome is zero.";
+
+    const gateNo = allClear();
+    setAns(gateNo, "r3q3", "N");
+    const gate = evaluate(gateNo);
+    assert.equal(gate.base.text, "Complete");
+    assert.equal(gate.substanceGate, "Failed");
+    assert.equal(gate.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(gate.outcome.line, gateLine);
+
+    const symptom = allClear();
+    symptom.symptoms.s1 = "me";
+    const marked = evaluate(symptom);
+    assert.equal(marked.base.text, "Complete");
+    assert.equal(marked.substanceGate, "Failed");
+    assert.equal(marked.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(marked.outcome.line, gateLine);
+
+    const monetization = allClear();
+    setAns(monetization, "r1q4", "N");
+    const missing = evaluate(monetization);
+    assert.match(missing.base.text, /^Zero — missing: Monetization$/);
+    assert.equal(missing.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(missing.outcome.line, pillarLine);
+
+    const substance = allClear();
+    setAns(substance, "r1q1", "N");
+    const both = evaluate(substance);
+    assert.match(both.base.text, /^Zero — missing: Substance$/);
+    assert.equal(both.substanceGate, "Failed");
+    assert.equal(both.outcome.text, "Zero — a loud, public, well-documented zero.");
+    assert.equal(both.outcome.line, pillarLine);
+  });
 });
